@@ -12,10 +12,6 @@ import { AuthRequest } from "interfaces/auth.interface";
  * @returns {Response | void} HTTP-ответ с описанием ошибки.
  */
 export const handleError = (err: Error, req: AuthRequest, res: Response, next: NextFunction): Response | void => {
-  console.log('err',err)
-   console.log('err',err.name)
-   console.log(err.name === 'ValidationError')
-
   if (err.name === 'CastError') {
     res.status(400).json({ message: err.message });
 

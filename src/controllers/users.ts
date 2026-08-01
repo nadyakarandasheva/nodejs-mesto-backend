@@ -6,7 +6,16 @@ import { CastError } from 'errors/cast-error';
 /**
  * Получает список пользователей.
  */
-export const getUsers =  (req: Request, res: Response, next: NextFunction): Promise<void | Response> => {
+export const getUsers =  (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response> => {
+  // Если нет идентификатора пользователя - возвращаем ошибку.
+  if(!req?.user?._id) {
+    res.status(401).send({
+      message: 'Необходима авторизация',
+    });
+
+    return Promise.resolve();
+  }
+
   return User.find({})
     .then((users) => res.status(200).send({ data: users }))
     .catch(next);
@@ -15,7 +24,16 @@ export const getUsers =  (req: Request, res: Response, next: NextFunction): Prom
 /**
  * Получает пользователя по идентификатору.
  */
-export const getUserById =  (req: Request, res: Response, next: NextFunction): Promise<void | Response>  => {
+export const getUserById =  (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
+  // Если нет идентификатора пользователя - возвращаем ошибку.
+  if(!req?.user?._id) {
+    res.status(401).send({
+      message: 'Необходима авторизация',
+    });
+
+    return Promise.resolve();
+  }
+
   return User.find({_id: req.params.userId})
     .then((user) => {
       if (!user) {
@@ -32,7 +50,6 @@ export const getUserById =  (req: Request, res: Response, next: NextFunction): P
  */
 export const createUser = (req: Request, res: Response, next: NextFunction): Promise<void | Response>  => {
   const { name, about, avatar } = req.body;
-  console.log(req.body);
 
   return User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
@@ -44,6 +61,15 @@ export const createUser = (req: Request, res: Response, next: NextFunction): Pro
  */
 export const updateUser = (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
   const { name, about } = req.body;
+
+  // Если нет идентификатора пользователя - возвращаем ошибку.
+  if(!req?.user?._id) {
+    res.status(401).send({
+      message: 'Необходима авторизация',
+    });
+
+    return Promise.resolve();
+  }
 
   return User.findOneAndUpdate( { _id: req.body.user._id },
     { $set: {  name, about } },
@@ -57,6 +83,15 @@ export const updateUser = (req: AuthRequest, res: Response, next: NextFunction):
  */
 export const updateUserAvatar = (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
   const { avatar } = req.body;
+
+  // Если нет идентификатора пользователя - возвращаем ошибку.
+  if(!req?.user?._id) {
+    res.status(401).send({
+      message: 'Необходима авторизация',
+    });
+
+    return Promise.resolve();
+  }
 
   return User.findOneAndUpdate( { _id: req.body.user._id },
     { $set: {  avatar } },
