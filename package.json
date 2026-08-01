@@ -1,0 +1,39 @@
+{
+  "name": "nodejs-mesto-backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/nadyakarandasheva/nodejs-mesto-backend#readme",
+  "bugs": {
+    "url": "https://github.com/nadyakarandasheva/nodejs-mesto-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nadyakarandasheva/nodejs-mesto-backend.git"
+  },
+  "license": "ISC",
+  "author": "Nadya",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint src/**/*.ts",
+    "start": "tsx index.ts",
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.2",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.23.1",
+    "typescript": "5.9"
+  },
+  "dependencies": {
+    "celebrate": "^15.0.3",
+    "express": "^5.2.1",
+    "mongoose": "^9.8.1"
+  }
+}
