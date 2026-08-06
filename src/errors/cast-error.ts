@@ -6,4 +6,5 @@ class CastError extends Error {
     this.name = 'CastError';
   }
 }
+
 export default CastError;
