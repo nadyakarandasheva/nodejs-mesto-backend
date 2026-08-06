@@ -1,8 +1,10 @@
-import { Error  } from "mongoose";
+import { Error } from 'mongoose';
 
-export class ValidationError extends Error {
+class ValidationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'ValidationError';
   }
 }
+
+export default ValidationError;

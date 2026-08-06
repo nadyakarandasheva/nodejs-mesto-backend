@@ -1,8 +1,9 @@
-import { Error  } from "mongoose";
+import { Error } from 'mongoose';
 
-export class CastError extends Error {
+class CastError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'CastError';
   }
 }
+export default CastError;

@@ -1,28 +1,39 @@
-import { Response, NextFunction } from "express";
-import { Error } from 'mongoose';
-
-import { AuthRequest } from "interfaces/auth.interface";
+import { Request, Response } from 'express';
+import { MongoServerError } from 'mongodb';
 
 /**
  * Обработчик ошибок запросов.
  * @param { Error } err - Ошибка.
- * @param { AuthRequest } req - Запрос.
+ * @param { Request } req - Запрос.
  * @param { Response } res - Ответ.
- * @param { NextFunction } next - Функция передачи управления следующему middleware.
  * @returns {Response | void} HTTP-ответ с описанием ошибки.
  */
-export const handleError = (err: Error, req: AuthRequest, res: Response, next: NextFunction): Response | void => {
+const handleError = (
+  err: Error,
+  req: Request,
+  res: Response,
+):Response | void => {
+  if (err.name === 'ValidationError') {
+    res.status(404).json({ message: err.message });
+
+    return;
+  }
+
   if (err.name === 'CastError') {
     res.status(400).json({ message: err.message });
 
     return;
   }
 
-  if (err.name === 'ValidationError') {
-    res.status(404).json({ message: err.message });
+  if (err instanceof MongoServerError && err.code === 11000) {
+    const field = Object.keys(err.keyPattern)[0];
 
-    return
+    res.status(404).json({ message: `Пользователь с таким ${field} уже существует.` });
+
+    return;
   }
 
   res.status(500).json({ message: 'Ошибка сервера' });
-}
+};
+
+export default handleError;

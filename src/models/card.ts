@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
+import validator from 'validator';
 
 /** Схема карточки. */
 const cardSchema = new mongoose.Schema({
@@ -11,6 +12,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (value: string) => validator.isURL(value),
+      message: 'Неправильный формат ссылки',
+    },
   },
   owner: {
     type: Schema.Types.ObjectId,
@@ -23,7 +28,7 @@ const cardSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
-})
+  },
+});
 
 export default mongoose.model('card', cardSchema);

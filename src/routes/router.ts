@@ -1,29 +1,31 @@
-import { Router } from "express";
+import { Router } from 'express';
 import { celebrate, Joi } from 'celebrate';
 
-import { createUser, getUserById, getUsers, updateUser, updateUserAvatar } from "controllers/users";
-import { createCard, deleteCardById, deleteLikeCardById, getCards, setLikeCardById } from "controllers/cards";
+import {
+  createUser, login, getCurrentUser, getUserById, getUsers, updateUser, updateUserAvatar,
+} from '../controllers/users';
+import {
+  createCard, deleteCardById, deleteLikeCardById, getCards, setLikeCardById,
+} from '../controllers/cards';
+import auth from '../middlewares/auth';
 
 const router = Router();
 
-// Роуты для пользователей.
+router.post('/signin', login);
+router.post('/signup', createUser);
+
+router.use(auth);
+
 router.get('/users', getUsers);
 
 router.get('/users/:userId', getUserById);
 
-router.post('/users', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(200),
-    avatar: Joi.string().required(),
-  }),
-}), createUser);
+router.get('/users/me', getCurrentUser);
 
 router.patch('/users/me', updateUser);
 
 router.patch('/users/me/avatar', updateUserAvatar);
 
-// Роуты для карточек.
 router.get('/cards', getCards);
 
 router.post('/cards', celebrate({

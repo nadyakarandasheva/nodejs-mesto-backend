@@ -1,8 +1,10 @@
 import { Request } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 
-// предложении из-за ошибки при req.user gpt предложил временное решение
+export interface TokenPayload extends JwtPayload {
+  _id: string | JwtPayload;
+}
+
 export interface AuthRequest extends Request {
-  user?: {
-    _id: string;
-  }
+  user?: TokenPayload;
 }

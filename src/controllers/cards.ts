@@ -1,104 +1,93 @@
 import { Response, NextFunction } from 'express';
 
+import { AuthRequest } from '../interfaces/auth.interface';
 import Card from '../models/card';
-import { AuthRequest } from 'interfaces/auth.interface';
 
-/**
- * Получает карточки.
- */
-export const getCards =  (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response> => {
-  // Если нет идентификатора пользователя - возвращаем ошибку.
-  if(!req?.user?._id) {
-    res.status(401).send({
-      message: 'Необходима авторизация',
-    });
+/** Получает карточки. */
+export const getCards = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> => Card.find({})
+  .then((cards) => res.status(200).send({ data: cards }))
+  .catch(next);
 
-    return Promise.resolve();
-  }
-
-  return Card.find({})
-    .then((cards) => res.status(200).send({ data: cards }))
-    .catch(next);
-}
-
-/**
- * Создает карточку.
- */
-export const createCard = (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
+/** Создает карточку. */
+export const createCard = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> => {
   const { name, link } = req.body;
 
-  // Если нет идентификатора пользователя - возвращаем ошибку.
-  if(!req?.user?._id) {
-    res.status(401).send({
-      message: 'Необходима авторизация',
-    });
-
-    return Promise.resolve();
-  }
-
-  return Card.create({ name, link, owner: req.user._id})
+  return Card.create({ name, link, owner: req?.user?._id.toString() })
     .then((card) => res.status(201).send({ data: card }))
     .catch(next);
 };
 
-/**
- * Удаляет карточку по идентификатору.
- */
-export const deleteCardById =  (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
-  // Если нет идентификатора пользователя - возвращаем ошибку.
-  if(!req?.user?._id) {
-    res.status(401).send({
-      message: 'Необходима авторизация',
-    });
+/** Удаляет карточку по идентификатору. */
+export const deleteCardById = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> => {
+  const { cardId } = req.params;
+  const currentUserId = req?.user?._id;
 
-    return Promise.resolve();
+  if (!currentUserId) {
+    return Promise.reject(new Error('Действие недоспуно'));
   }
 
-  return Card.deleteOne({_id: req.params.cardId})
-    .then(() => res.status(200).send({ message: 'Карточка удалена.'  }))
-    .catch(next);
-}
+  return Card.findOne({ id: cardId })
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({
+          message: 'Карточка с указанным id не найдена.',
+        });
+      }
 
-/**
- * Устанавливает лайк карточке по идентификатору.
- */
-export const setLikeCardById =  (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
+      if (card.owner.toString() !== currentUserId.toString()) {
+        return res.status(403).send();
+      }
+
+      return Card.findByIdAndDelete(cardId)
+        .then(() => res.status(200).send({
+          message: 'Карточка удалена.',
+        }));
+    })
+    .catch(next);
+};
+
+/** Устанавливает лайк карточке по идентификатору. */
+export const setLikeCardById = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> => {
   const { cardId } = req.params;
 
-  // Если нет идентификатора пользователя - возвращаем ошибку.
-  if(!req?.user?._id) {
-    res.status(401).send({
-      message: 'Необходима авторизация',
-    });
-
-    return Promise.resolve();
-  }
-
-  return Card.findByIdAndUpdate({ _id: cardId },
-    { $addToSet: { likes: req.user._id } },
-    { new: true } )
+  return Card.findByIdAndUpdate(
+    { _id: cardId },
+    { $addToSet: { likes: req?.user?._id } },
+    { new: true },
+  )
     .then(() => res.status(200).send())
     .catch(next);
-}
+};
 
-/**
- * Удаляет лайк с карточки по идентификатору.
- */
-export const deleteLikeCardById =  (req: AuthRequest, res: Response, next: NextFunction): Promise<void | Response>  => {
+/** Удаляет лайк с карточки по идентификатору. */
+export const deleteLikeCardById = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> => {
   const { cardId } = req.params;
 
-  // Если нет идентификатора пользователя - возвращаем ошибку.
-  if(!req?.user?._id) {
-    res.status(401).send({
-      message: 'Необходима авторизация',
-    });
-
-    return Promise.resolve();
-  }
-
-  return Card.findByIdAndUpdate({ _id: cardId },
+  return Card.findByIdAndUpdate(
+    { _id: cardId },
     { $pull: { likes: req.body.user._id } },
-    { new: true } )
+    { new: true },
+  )
     .then(() => res.status(200).send())
     .catch(next);
-}
+};
