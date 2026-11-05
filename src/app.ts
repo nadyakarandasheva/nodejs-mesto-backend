@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import routes from './routes/router';
-import handleError from 'controllers/errors';
+import handleError from './controllers/errors';
 import { requestLogger, errorLogger } from './middlewares/logger';
 import { errors } from 'celebrate';
 
