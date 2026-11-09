@@ -19,7 +19,7 @@ module.exports = {
       repo: 'https://github.com/nadyakarandasheva/nodejs-mesto-backend.git',
       path: DEPLOY_PATH,
       'pre-deploy-local': `scp .env ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/`,
-      'post-deploy': 'npm i && npm run build',
+      'post-deploy': 'export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && npm i && npm run build',
     },
   },
 };
